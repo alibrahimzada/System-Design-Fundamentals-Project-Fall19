@@ -15,37 +15,58 @@ yellow_led.direction = digitalio.Direction.OUTPUT
 green_led.direction = digitalio.Direction.OUTPUT
 
 class ObstacleDetector(SM):
-    startState = 'nothing'
+    startState = 'initialState'
+
+    def initialize(self, led):
+        led.value = True
+        time.sleep(2)
+        led.value = False
+        time.sleep(1)
 
     def getNextValues(self, state, inp):
-
-        # First State Discuss with group Members
-
-        if inp > 120 and inp < 200: #Second State
-            print("You are Safe")
+        if state == 'initialState':
+            self.initialize(green_led)
+            self.initialize(yellow_led)
+            self.initialize(red_led)
+            buzzer.duty_cycle = 2**15
+            time.sleep(2)
+            buzzer.duty_cycle = 0
+            return (None, 'Obstacle Detector Device is Working!')
+                    
+        elif 120 < inp < 200:                   #Second State
             green_led.value = True
-            red_led.value = False
-            yellow_led.value = False
-        elif inp <= 120 and inp > 50: #Third State
-            print("Slow Down Your Speed")
-            yellow_led.value = True
-            green_led.value = False
-            red_led.value = False
-        elif inp <= 50 and inp > 25:    #Fourth State
-            print("DANGER TOO CLOSE")
-            red_led.value = True
-            green_led.value = False
-            yellow_led.value = False
-        elif inp >= 200: #Discuss with group members Fifth State
-            pass
-        elif inp <= 25: #Discuss with group memebers Sixth State
-            red_led.value = True
-            green_led.value = False
-            yellow_led.value = False
+            return ('thirdState', 'You are safe')
+        
+#        if inp > 120 and inp < 200: #Second State
+#            print("You are Safe")
+#            green_led.value = True
+#            red_led.value = False
+#            yellow_led.value = False
+#        elif inp <= 120 and inp > 50: #Third State
+#            print("Slow Down Your Speed")
+#            yellow_led.value = True
+#            green_led.value = False
+#            red_led.value = False
+#        elif inp <= 50 and inp > 25:    #Fourth State
+#            print("DANGER TOO CLOSE")
+#            red_led.value = True
+ #           green_led.value = False
+  #          yellow_led.value = False
+   #     elif inp >= 200: #Discuss with group members Fifth State
+    #        pass
+     #   elif inp <= 25: #Discuss with group memebers Sixth State
+      #      red_led.value = True
+       #     green_led.value = False
+        #    yellow_led.value = False
 
 
 
 
 CarSensor = ObstacleDetector()
+(s, o) = CarSensor.transduce(sonar.distance)
+print(s, o)
+
 while True:	#Discuss State and while loop with group memebers
-    CarSensor.getNextValues(0, sonar.distance)
+    (s, o) = CarSensor.getNextValues(s, sonar.distance)
+    print(sonar.distance)
+    print(s, o)
