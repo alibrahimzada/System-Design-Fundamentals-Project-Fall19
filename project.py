@@ -17,7 +17,6 @@ green_led.direction = digitalio.Direction.OUTPUT
 class SM:
     def start(self):
         self.state = self.startState
-        self.checkState = False
 
     def step(self, inp):
         (s, o) = self.getNextValues(self.state, inp)
@@ -34,7 +33,8 @@ class SM:
 
 class ObstacleDetector(SM):
     startState = 'initialState'
-
+    checkState = False
+    
     def initialize(self, led):
         led.value = True
         time.sleep(2)
