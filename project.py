@@ -24,7 +24,8 @@ class SM:
         return o
     
     def transduce(self, input):
-        self.start()
+        if self.startState == 'initialState':
+            self.start()
         o = self.step(input)
         return (self.state, o)
 
@@ -91,7 +92,8 @@ isFinalState = False
 while True:
     (s, o) = obj.transduce(sonar.distance)
     print(sonar.distance, s, o)
-    
+
+    start = 10
     if not isFinalState and s == 'finalState':
         start = time.time()
         isFinalState = True
