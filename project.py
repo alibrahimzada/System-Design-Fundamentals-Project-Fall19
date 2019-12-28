@@ -17,15 +17,17 @@ green_led.direction = digitalio.Direction.OUTPUT
 class SM:
     def start(self):
         self.state = self.startState
-    
+        self.checkState = False
+
     def step(self, inp):
         (s, o) = self.getNextValues(self.state, inp)
         self.state = s
         return o
     
     def transduce(self, input):
-        if self.startState == 'initialState':
+        if not self.checkState:
             self.start()
+            self.checkState = True        
         o = self.step(input)
         return (self.state, o)
 
@@ -89,11 +91,11 @@ obj = ObstacleDetector()
 print(s, o)
 
 isFinalState = False
+start = 10
 while True:
     (s, o) = obj.transduce(sonar.distance)
     print(sonar.distance, s, o)
 
-    start = 10
     if not isFinalState and s == 'finalState':
         start = time.time()
         isFinalState = True
