@@ -55,7 +55,16 @@ class SM:
         """
 
         (s, o) = self.getNextValues(self.state, inp)
-        self.state = s
+
+        if s != 'closedState':
+            self.state = s
+            self.isFinalState = False
+            self.start = 0
+        elif s == 'closedState' and not self.isFinalState:
+            self.start = time.time()
+            self.isFinalState = True
+        elif s == 'closedState' and self.getTimeDifference(self.start) > 5:
+            self.state = 'finalState'
         return o
 
     def transduce(self, input):
@@ -76,6 +85,9 @@ class SM:
         o = self.step(input)
         return (self.state, o)
 
+    def getTimeDiffernce(self, old_time):
+        return time.time() - old_time
+
 
 class ObstacleDetector(SM):
     """
@@ -92,6 +104,7 @@ class ObstacleDetector(SM):
 
     startState = 'initialState'
     checkState = False
+    isFinalState = False
 	
     def initialize(self, led):
         """
@@ -156,13 +169,9 @@ class ObstacleDetector(SM):
             yellow_led.value = True
             buzzer.duty_cycle = 0
             return ('fifthState', 'Distance Error')
-
+        
         elif inp <= 25:
-            green_led.value = False
-            yellow_led.value = False
-            red_led.value = True
-            buzzer.duty_cycle = 2**15
-            return ('finalState', '')
+            return ('closedState', '')
 
 
 def getTimeDifference(old_time):
@@ -178,25 +187,20 @@ def getTimeDifference(old_time):
 
     return time.time() - old_time
 
-obj = ObstacleDetector()                                 # An ObstacleDetector instance to start the project
-isFinalState = False                                       # A boolean variable to check if it is finalState
-start = 0                                       # An integer variable to calculate time difference initially
 
+obj = ObstacleDetector()                                 # An ObstacleDetector instance to start the project
 while True:                                    # An infinite loop to test the Obstacle Detector in real time
     try:                                        
         sonar_distance = sonar.distance
     except RuntimeError:                     # Catching RuntimeError when waves cannot return back to sensor
         sonar_distance = 200
     (s, o) = obj.transduce(sonar_distance)       # New state and output based on the given input from sonars
-    print(o)                                                             # Displaying the output on terminal
+    print(sonar.distance, s, o)                                          # Displaying the output on terminal
 
-    if not isFinalState and s == 'finalState':                         # Checking if the SM is in finalState
-        start = time.time()                           # Starting the counter the moment it enters finalState
-        isFinalState = True            # Changing this variable to avoid re-entering and resetting the timer
-    elif s != 'finalState':                            # resetting the timer if the SM leaves the finalState 
-        isFinalState = False
-
-    difference = getTimeDifference(start)        # calculating time difference since the SM is in finalState
-    if s == 'finalState' and difference > 5:        # if SM is in finalState more than 5s, the program stops
+    if s == 'finalState':                                              # Checking if the SM is in finalState
         print('The Device Stopped! Calling Emergency Services')   # final output before stopping the program
+        green_led.value = False
+        yellow_led.value = False
+        red_led.value = True
+        buzzer.duty_cycle = 2**15
         break
