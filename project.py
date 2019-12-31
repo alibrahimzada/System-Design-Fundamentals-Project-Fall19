@@ -189,5 +189,5 @@ while True:                                    # An infinite loop to test the Ob
         yellow_led.value = False
         red_led.value = True
         buzzer.duty_cycle = 2**15
-        time.sleep(1)
+        time.sleep(5)
         break
