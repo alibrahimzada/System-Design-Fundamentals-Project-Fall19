@@ -20,15 +20,12 @@ green_led.direction = digitalio.Direction.OUTPUT
 class SM:
     """
     The State Machine class implements State Machine operations.
-
     Attributes:
         None
-
     Methods:
         start(self): The method to start the SM and set the start state.
         step(self, inp): The method to handle output and set new state at each step.
         transduce(self, input): The method that gets new inputs and give it for self.step.
-        getTimeDifference(self, old_time): The method which calculates time difference.
     """
 
     def start(self):
@@ -71,10 +68,8 @@ class SM:
     def transduce(self, input):
         """
         The method that gets new inputs and give it for self.step.
-
         Parameters:
             input (float): The input value given to state machine at each step from sonars.
-
         Returns:
             self.state (str): new state of state machine.
             o (str): output value from a certain state
@@ -87,27 +82,15 @@ class SM:
         return (self.state, o)
 
     def getTimeDiffernce(self, old_time):
-        """
-        The method which calculates time difference.
-        
-        Parameters:
-            old_time (float): The old time in which the interval started.
-        
-        Returns:
-            difference (float): The time difference between old_time and current time.
-        """
-
         return time.time() - old_time
 
 
 class ObstacleDetector(SM):
     """
     The ObstacleDetector class which implements the states of project.
-
     Attributes:
         startState (str): start state of the state machine.
         checkState (bool): check state in certain points.
-
     Methods:
         initialize(self, led): The method which encapsulates a specific functionaility.
         getNextValues(self, state, inp): The method which handles states based on inputs and current state.
@@ -120,7 +103,6 @@ class ObstacleDetector(SM):
     def initialize(self, led):
         """
         The method which encapsulates a specific functionaility.
-
         Parameters:
             led (instance): LEDs from circuit
 
@@ -136,7 +118,6 @@ class ObstacleDetector(SM):
     def getNextValues(self, state, inp):
         """
         The method which handles states based on inputs and current state.
-
         Parameters:
             state (str): The current state of state machine.
             inp (float): The input value for state machine from sonars.
@@ -153,7 +134,7 @@ class ObstacleDetector(SM):
             buzzer.duty_cycle = 2**15
             time.sleep(2)
             buzzer.duty_cycle = 0
-            return ('initialState', 'Obstacle Detector Device is Working!')
+            return ('InitialState', 'Obstacle Detector Device is Working!')
 
         elif 120 < inp < 200:
             red_led.value = False
@@ -185,6 +166,18 @@ class ObstacleDetector(SM):
             return ('closedState', '')
 
 
+def getTimeDifference(old_time):
+    """
+    The function which calculates time difference.
+    Parameters:
+        old_time (float): The old time in which the interval started.
+    Returns:
+        difference (float): The time difference between old_time and current time.
+    """
+
+    return time.time() - old_time
+
+
 obj = ObstacleDetector()                                 # An ObstacleDetector instance to start the project
 while True:                                    # An infinite loop to test the Obstacle Detector in real time
     try:
@@ -192,10 +185,9 @@ while True:                                    # An infinite loop to test the Ob
     except RuntimeError:                     # Catching RuntimeError when waves cannot return back to sensor
         sonar_distance = 200
     (s, o) = obj.transduce(sonar_distance)       # New state and output based on the given input from sonars
-    print(o)                                                             # Displaying the output on terminal
-
+    print(sonar_distance, s, o)                                          # Displaying the output on terminal
     if s == 'finalState':                                              # Checking if the SM is in finalState
-        print(s, 'The Device Stopped! Calling Emergency Services')   # final output before stopping the program
+        print('The Device Stopped! Calling Emergency Services')   # final output before stopping the program
         green_led.value = False
         yellow_led.value = False
         red_led.value = True
