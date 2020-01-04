@@ -75,9 +75,9 @@ class SM:
             o (str): output value from a certain state
         """
 
-        if not self.checkState:
+        if not self.isInitialState:
             self.start()
-            self.checkState = True
+            self.isInitialState = True
         o = self.step(input)
         return (self.state, o)
 
@@ -90,14 +90,15 @@ class ObstacleDetector(SM):
     The ObstacleDetector class which implements the states of project.
     Attributes:
         startState (str): start state of the state machine.
-        checkState (bool): check state in certain points.
+        isInitialState (bool): check if it is initial state
+        isFinalState (bool): check if it is final state
     Methods:
         initialize(self, led): The method which encapsulates a specific functionaility.
         getNextValues(self, state, inp): The method which handles states based on inputs and current state.
     """
 
     startState = 'initialState'
-    checkState = False
+    isInitialState = False
     isFinalState = False
 	
     def initialize(self, led):
@@ -134,7 +135,7 @@ class ObstacleDetector(SM):
             buzzer.duty_cycle = 2**15
             time.sleep(2)
             buzzer.duty_cycle = 0
-            return ('InitialState', 'Obstacle Detector Device is Working!')
+            return ('Initial State', 'Obstacle Detector Device is Working!')
 
         elif 120 < inp < 200:
             red_led.value = False
